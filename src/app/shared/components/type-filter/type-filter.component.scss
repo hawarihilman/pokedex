@@ -1,0 +1,61 @@
+.filter-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 6px 16px 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  background: var(--ion-card-background, #ffffff);
+  color: var(--ion-text-color, #4a5568);
+  border: 1px solid var(--ion-color-step-150, #e2e8f0);
+  font-size: 0.825rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: var(--chip-accent, #3182ce);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  &.active {
+    background: var(--chip-accent, #2b6cb0);
+    color: #ffffff;
+    border-color: var(--chip-accent, #2b6cb0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    transform: translateY(-1px) scale(1.02);
+
+    .chip-dot {
+      background: #ffffff !important;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+    }
+  }
+}
+
+.chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+
+  &.all-dot {
+    background: #718096;
+  }
+}

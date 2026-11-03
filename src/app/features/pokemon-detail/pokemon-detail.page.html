@@ -1,0 +1,211 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar [style.--background]="primaryTypeColor()" class="detail-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/list" text="" color="light"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title class="detail-header-title"> {{ pokemon()?.name ?? 'Pokédex' }} </ion-title>
+
+    <ion-buttons slot="end">
+      @if (pokemon(); as p) {
+      <button
+        type="button"
+        class="header-fav-btn"
+        [class.favorited]="isFavorite()"
+        (click)="toggleFavorite()"
+        [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'"
+      >
+        <ion-icon [name]="isFavorite() ? 'heart' : 'heart-outline'"></ion-icon>
+      </button>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content #content [fullscreen]="true" class="detail-content">
+  @if (isLoading()) {
+  <div class="detail-loading-wrapper">
+    <div class="loading-spinner"></div>
+    <p>Consulting Professor Oak's Pokédex...</p>
+  </div>
+  } @else if (error()) {
+  <app-empty-state
+    icon="alert-circle-outline"
+    title="Could Not Load Pokémon"
+    [message]="error()!"
+    actionLabel="Try Again"
+    (action)="loadDetail()"
+  ></app-empty-state>
+  } @else if (pokemon(); as p) {
+  <div
+    class="detail-container"
+    [style.--type-theme-color]="primaryTypeColor()"
+    [style.--type-theme-bg]="primaryTypeBg()"
+  >
+    <!-- Hero Top Section -->
+    <section class="hero-section">
+      <div class="pokeball-bg" aria-hidden="true"></div>
+
+      <div class="hero-info">
+        <span class="hero-id">{{ p.formattedId }}</span>
+        <h1 class="hero-name">{{ p.name }}</h1>
+
+        <div class="hero-types">
+          @for (t of p.types; track t) {
+          <app-type-badge [type]="t" size="medium"></app-type-badge>
+          }
+        </div>
+      </div>
+
+      <!-- Artwork & Interactive Controls -->
+      <div class="artwork-container">
+        <img [src]="currentArtwork()" [alt]="p.name" class="main-artwork" [class.shiny-mode]="isShiny()" />
+
+        <!-- Action floating badges -->
+        <div class="artwork-controls">
+          <!-- Shiny Toggle Button -->
+          @if (p.sprites.officialArtworkShiny || p.sprites.frontShiny) {
+          <button
+            type="button"
+            class="control-pill shiny-btn"
+            [class.active]="isShiny()"
+            (click)="toggleShiny()"
+            title="Toggle Shiny Form"
+          >
+            <ion-icon name="sparkles"></ion-icon>
+            <span>{{ isShiny() ? 'Shiny Active' : 'View Shiny' }}</span>
+          </button>
+          }
+
+          <!-- Cry Audio Player Button -->
+          @if (p.cryUrl) {
+          <button
+            type="button"
+            class="control-pill cry-btn"
+            [class.playing]="isPlayingCry()"
+            (click)="playCry()"
+            title="Play Pokemon Cry"
+          >
+            <ion-icon [name]="isPlayingCry() ? 'volume-high' : 'volume-medium-outline'"></ion-icon>
+            <span>{{ isPlayingCry() ? 'Playing Cry...' : 'Hear Cry' }}</span>
+          </button>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Sheet / Detail Card -->
+    <section class="sheet-section">
+      <!-- Segment Tabs -->
+      <ion-segment [value]="activeTab()" (ionChange)="onTabChange($event)" class="custom-segment">
+        <ion-segment-button value="about">
+          <ion-label>About</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="stats">
+          <ion-label>Base Stats</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="sprites">
+          <ion-label>Sprites</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      <div class="tab-content">
+        <!-- About Tab -->
+        @if (activeTab() === 'about') {
+        <div class="tab-pane about-pane">
+          <div class="metric-cards-grid">
+            <div class="metric-card">
+              <span class="metric-label">Height</span>
+              <span class="metric-value">{{ p.height | decimeterToM }}</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Weight</span>
+              <span class="metric-value">{{ p.weight | hectogramToKg }}</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Base EXP</span>
+              <span class="metric-value">{{ p.baseExperience || 'N/A' }}</span>
+            </div>
+          </div>
+
+          <!-- Abilities -->
+          <div class="info-block">
+            <h3 class="block-title">Abilities</h3>
+            <div class="abilities-list">
+              @for (ability of p.abilities; track ability.name) {
+              <div class="ability-item" [class.hidden-ability]="ability.isHidden">
+                <span class="ability-name">{{ ability.name }}</span>
+                @if (ability.isHidden) {
+                <span class="ability-tag">Hidden</span>
+                }
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- Pokedex Entry Trainer Note -->
+          <div class="info-block">
+            <h3 class="block-title">Trainer Notes</h3>
+            <p class="trainer-note">
+              {{ p.name }} is a dual/single <strong>{{ p.primaryType }}</strong>-type Pokémon registered at entry {{
+              p.formattedId }} in the National Pokédex. Add to favorites to track training stats and compare with your
+              party.
+            </p>
+          </div>
+        </div>
+        }
+
+        <!-- Base Stats Tab -->
+        @if (activeTab() === 'stats') {
+        <div class="tab-pane stats-pane">
+          <div class="stats-list">
+            @for (stat of p.stats; track stat.name) {
+            <app-stat-bar [stat]="stat"></app-stat-bar>
+            }
+          </div>
+
+          <div class="stat-total-row">
+            <span class="total-label">Total Stat Score</span>
+            <span class="total-value">{{ p.totalStats }}</span>
+          </div>
+
+          <div class="stat-legend">
+            <span class="legend-dot dot-red"></span> &lt;50 Low <span class="legend-dot dot-yellow"></span> 50-89 Avg
+            <span class="legend-dot dot-green"></span> 90-129 Good <span class="legend-dot dot-cyan"></span> 130+ Elite
+          </div>
+        </div>
+        }
+
+        <!-- Sprites Gallery Tab -->
+        @if (activeTab() === 'sprites') {
+        <div class="tab-pane sprites-pane">
+          <div class="sprites-grid">
+            <div class="sprite-card">
+              <span class="sprite-title">Normal Front</span>
+              <img [src]="p.sprites.frontDefault" [alt]="p.name + ' front'" class="sprite-img" />
+            </div>
+
+            @if (p.sprites.backDefault) {
+            <div class="sprite-card">
+              <span class="sprite-title">Normal Back</span>
+              <img [src]="p.sprites.backDefault" [alt]="p.name + ' back'" class="sprite-img" />
+            </div>
+            } @if (p.sprites.frontShiny) {
+            <div class="sprite-card shiny">
+              <span class="sprite-title">Shiny Front</span>
+              <img [src]="p.sprites.frontShiny" [alt]="p.name + ' shiny front'" class="sprite-img" />
+            </div>
+            } @if (p.sprites.backShiny) {
+            <div class="sprite-card shiny">
+              <span class="sprite-title">Shiny Back</span>
+              <img [src]="p.sprites.backShiny" [alt]="p.name + ' shiny back'" class="sprite-img" />
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+    </section>
+  </div>
+  }
+</ion-content>

@@ -1,0 +1,49 @@
+<div
+  class="pokemon-card"
+  [routerLink]="['/pokemon', pokemon.id]"
+  [style.--card-type-color]="typeMeta().color"
+  [style.--card-type-bg]="typeMeta().backgroundColor"
+  tabindex="0"
+  role="article"
+  [attr.aria-label]="pokemon.name + ', ' + pokemon.formattedId"
+>
+  <!-- Pokeball watermark backdrop -->
+  <div class="pokeball-watermark" aria-hidden="true"></div>
+
+  <!-- Card Top Bar: ID + Favorite Button -->
+  <div class="card-header">
+    <span class="pokemon-id">{{ pokemon.formattedId }}</span>
+    <button
+      type="button"
+      class="favorite-btn"
+      [class.favorited]="pokemon.isFavorite"
+      (click)="onToggleFavorite($event)"
+      [attr.aria-label]="pokemon.isFavorite ? 'Remove from favorites' : 'Add to favorites'"
+      title="Toggle Favorite"
+    >
+      <ion-icon [name]="pokemon.isFavorite ? 'heart' : 'heart-outline'"></ion-icon>
+    </button>
+  </div>
+
+  <!-- Pokemon Artwork -->
+  <div class="card-image-wrap">
+    <img
+      [src]="imageSrc()"
+      [alt]="pokemon.name"
+      loading="lazy"
+      decoding="async"
+      class="pokemon-img"
+      (error)="onImageError()"
+    />
+  </div>
+
+  <!-- Card Body: Name + Type Badges -->
+  <div class="card-body">
+    <h3 class="pokemon-name">{{ pokemon.name }}</h3>
+    <div class="type-badges-wrap">
+      @for (t of pokemon.types; track t) {
+        <app-type-badge [type]="t" size="small"></app-type-badge>
+      }
+    </div>
+  </div>
+</div>

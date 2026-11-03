@@ -1,0 +1,7 @@
+<div class="stat-row">
+  <span class="stat-label">{{ stat.label }}</span>
+  <span class="stat-value">{{ stat.value }}</span>
+  <div class="bar-container">
+    <div class="bar-fill" [style.width.%]="stat.percentage" [style.background]="barColor()"></div>
+  </div>
+</div>

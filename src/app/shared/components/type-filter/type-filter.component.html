@@ -1,0 +1,28 @@
+<div class="filter-scroll" role="tablist" aria-label="Filter by Pokemon type">
+  <button
+    type="button"
+    class="filter-chip"
+    [class.active]="selectedType === null"
+    (click)="onSelect(null)"
+    role="tab"
+    [attr.aria-selected]="selectedType === null"
+  >
+    <span class="chip-dot all-dot"></span>
+    <span>All Types</span>
+  </button>
+
+  @for (type of types; track type) {
+    <button
+      type="button"
+      class="filter-chip"
+      [class.active]="selectedType === type"
+      [style.--chip-accent]="typeMetas[type].color"
+      (click)="onSelect(type)"
+      role="tab"
+      [attr.aria-selected]="selectedType === type"
+    >
+      <span class="chip-dot" [style.background]="typeMetas[type].color"></span>
+      <span>{{ typeMetas[type].name }}</span>
+    </button>
+  }
+</div>

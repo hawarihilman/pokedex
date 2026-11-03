@@ -1,0 +1,16 @@
+<ion-tabs (ionTabsDidChange)="onTabChange($event)">
+  <ion-tab-bar slot="bottom" class="custom-tab-bar">
+    <ion-tab-button tab="list" href="/tabs/list">
+      <ion-icon name="list-outline"></ion-icon>
+      <ion-label>Pokédex</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="favorites" href="/tabs/favorites">
+      <ion-icon name="heart"></ion-icon>
+      <ion-label>Favorites</ion-label>
+      @if (store.favoritesCount() > 0) {
+      <ion-badge color="danger">{{ store.favoritesCount() }}</ion-badge>
+      }
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

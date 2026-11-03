@@ -1,0 +1,120 @@
+<ion-header [translucent]="true" class="ion-no-border header-pokedex">
+  <ion-toolbar class="main-toolbar">
+    <div class="brand-container" (click)="scrollToTop()" role="button" tabindex="0" title="Scroll to top">
+      <div class="brand-pokeball"></div>
+      <ion-title class="brand-title">Pokédex</ion-title>
+    </div>
+
+    <!-- Desktop nav links -->
+    <div class="desktop-nav" slot="end">
+      <a routerLink="/tabs/list" routerLinkActive="active" class="nav-link" (click)="scrollToTop()">
+        <ion-icon name="list-outline"></ion-icon>
+        <span>All Pokémon</span>
+      </a>
+      <a routerLink="/tabs/favorites" routerLinkActive="active" class="nav-link fav-nav-link">
+        <ion-icon name="heart"></ion-icon>
+        <span>Favorites</span>
+        @if (store.favoritesCount() > 0) {
+        <span class="nav-badge">{{ store.favoritesCount() }}</span>
+        }
+      </a>
+    </div>
+  </ion-toolbar>
+
+  <!-- Search Bar -->
+  <ion-toolbar class="search-toolbar">
+    <ion-searchbar
+      [value]="store.searchQuery()"
+      (ionInput)="onSearchChange($event)"
+      placeholder="Search Pokémon by name or #ID (e.g. 25, Gengar)..."
+      [debounce]="250"
+      show-clear-button="focus"
+      class="custom-searchbar"
+    ></ion-searchbar>
+  </ion-toolbar>
+
+  <!-- Type Filter Chips -->
+  <app-type-filter [selectedType]="store.selectedType()" (typeSelected)="onTypeSelected($event)"></app-type-filter>
+</ion-header>
+
+<ion-content
+  #content
+  [fullscreen]="true"
+  [scrollEvents]="true"
+  (ionScroll)="onContentScroll($event)"
+  class="pokemon-list-content"
+>
+  <!-- Pull to Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content pullingText="Pull to reload Pokédex..." refreshingSpinner="circles"> </ion-refresher-content>
+  </ion-refresher>
+
+  <div class="content-wrapper">
+    <!-- Active filter banner if type or search is active -->
+    @if (store.selectedType() || store.searchQuery()) {
+    <div class="filter-indicator-bar">
+      <span class="results-count">
+        Showing <strong>{{ store.displayPokemon().length }}</strong>
+        @if (store.selectedType()) {
+        <strong>{{ store.selectedType() }}</strong>
+        } Pokémon
+      </span>
+      @if (store.selectedType() || store.searchQuery()) {
+      <button type="button" class="reset-filter-btn" (click)="resetFilters()">Clear Filters</button>
+      }
+    </div>
+    }
+
+    <!-- Initial Loading State -->
+    @if (store.isLoading()) {
+    <app-skeleton-grid [count]="16"></app-skeleton-grid>
+    } @else if (store.error()) {
+    <!-- Error State -->
+    <app-empty-state
+      icon="alert-circle-outline"
+      title="Failed to Load"
+      [message]="store.error()!"
+      actionLabel="Try Again"
+      (action)="store.refresh()"
+    ></app-empty-state>
+    } @else if (store.displayPokemon().length === 0) {
+    <!-- Empty State -->
+    <app-empty-state
+      icon="search-outline"
+      title="No Pokémon Found"
+      message="We couldn't find any Pokémon matching your search or filter. Try a different query!"
+      actionLabel="Reset Filters"
+      (action)="resetFilters()"
+    ></app-empty-state>
+    } @else {
+    <!-- Pokemon Responsive Grid -->
+    <div class="pokemon-grid" role="region" aria-label="Pokemon list">
+      @for (pokemon of store.displayPokemon(); track pokemon.id) {
+      <app-pokemon-card [pokemon]="pokemon" (favoriteToggled)="onFavoriteToggle($event)"></app-pokemon-card>
+      }
+    </div>
+
+    <!-- Animated spinning Pokéball loader indicator during background infinite loading -->
+    @if (store.isLoadingMore()) {
+    <div class="loading-more-container" role="status" aria-live="polite">
+      <div class="pokeball-loading-spinner"></div>
+      <span class="loading-more-text">Catching more Pokémon...</span>
+    </div>
+    }
+
+    <!-- Infinite Scroll: Disabled only when text searching or when all data reached -->
+    @if (!store.searchQuery()) {
+    <ion-infinite-scroll (ionInfinite)="loadMoreData($event)" threshold="250px" [disabled]="!store.hasMore()">
+      <ion-infinite-scroll-content loadingSpinner="circular" loadingText="Loading more Pokémon...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+    } }
+  </div>
+
+  <!-- Floating Back to Top Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="back-to-top-fab" [class.visible]="showBackToTop()">
+    <ion-fab-button size="small" color="light" (click)="scrollToTop()" aria-label="Scroll to top" title="Back to top">
+      <ion-icon name="arrow-up-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

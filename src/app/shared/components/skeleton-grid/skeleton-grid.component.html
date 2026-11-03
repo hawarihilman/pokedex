@@ -1,0 +1,32 @@
+<div class="skeleton-grid">
+  @for (item of skeletonItems; track $index) {
+    <div class="skeleton-card">
+      <div class="skeleton-top">
+        <ion-skeleton-text [animated]="true" style="width: 40px; height: 16px; border-radius: 4px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="width: 24px; height: 24px; border-radius: 50%"></ion-skeleton-text>
+      </div>
+      <div class="skeleton-image">
+        <ion-skeleton-text
+          [animated]="true"
+          style="width: 90px; height: 90px; border-radius: 50%; margin: 10px auto"
+        ></ion-skeleton-text>
+      </div>
+      <div class="skeleton-bottom">
+        <ion-skeleton-text
+          [animated]="true"
+          style="width: 70%; height: 18px; margin: 0 auto 8px; border-radius: 4px"
+        ></ion-skeleton-text>
+        <div class="skeleton-badges">
+          <ion-skeleton-text
+            [animated]="true"
+            style="width: 45px; height: 18px; border-radius: 12px"
+          ></ion-skeleton-text>
+          <ion-skeleton-text
+            [animated]="true"
+            style="width: 45px; height: 18px; border-radius: 12px"
+          ></ion-skeleton-text>
+        </div>
+      </div>
+    </div>
+  }
+</div>

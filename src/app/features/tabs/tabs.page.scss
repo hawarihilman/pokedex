@@ -1,0 +1,32 @@
+.custom-tab-bar {
+  --background: var(--ion-card-background, #ffffff);
+  border-top: 1px solid var(--ion-color-step-100, #edf2f7);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+
+  // Hide mobile bottom tab bar on desktop since top navbar handles desktop navigation
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+ion-tab-button {
+  --color: var(--ion-color-step-600, #718096);
+  --color-selected: var(--ion-color-primary, #3182ce);
+
+  ion-icon {
+    font-size: 22px;
+  }
+
+  ion-label {
+    font-weight: 700;
+    font-size: 0.75rem;
+    margin-top: 2px;
+  }
+}
+
+ion-badge {
+  font-weight: 800;
+  font-size: 0.7rem;
+  border-radius: 9999px;
+  padding: 3px 6px;
+}

@@ -1,0 +1,75 @@
+<ion-header [translucent]="true" class="ion-no-border header-favorites">
+  <ion-toolbar class="main-toolbar">
+    <div class="brand-container" (click)="scrollToTop()" role="button" tabindex="0" title="Scroll to top">
+      <div class="fav-icon-badge">
+        <ion-icon name="heart"></ion-icon>
+      </div>
+      <ion-title class="brand-title">Favorite Pokémon</ion-title>
+    </div>
+
+    <!-- Desktop nav links -->
+    <div class="desktop-nav" slot="end">
+      <a routerLink="/tabs/list" class="nav-link">
+        <ion-icon name="list-outline"></ion-icon>
+        <span>All Pokémon</span>
+      </a>
+      <a routerLink="/tabs/favorites" class="nav-link fav-nav-link active" (click)="scrollToTop()">
+        <ion-icon name="heart"></ion-icon>
+        <span>Favorites</span>
+        @if (store.favoritesCount() > 0) {
+        <span class="nav-badge">{{ store.favoritesCount() }}</span>
+        }
+      </a>
+    </div>
+  </ion-toolbar>
+
+  <!-- Search in Favorites -->
+  @if (store.favoriteIds().length > 0) {
+  <ion-toolbar class="search-toolbar">
+    <ion-searchbar
+      [value]="searchQuery()"
+      (ionInput)="onSearchChange($event)"
+      placeholder="Filter your favorites by name or #ID..."
+      [debounce]="200"
+      show-clear-button="focus"
+      class="custom-searchbar"
+    ></ion-searchbar>
+  </ion-toolbar>
+  }
+</ion-header>
+
+<ion-content #content [fullscreen]="true" class="favorites-content">
+  <div class="content-wrapper">
+    @if (store.favoriteIds().length === 0) {
+    <!-- Empty State: No favorites at all -->
+    <app-empty-state
+      icon="heart-dislike-outline"
+      title="No Favorites Yet"
+      message="You haven't added any Pokémon to your favorites yet. Explore the Pokédex and tap the heart icon on any Pokémon to start building your dream team!"
+      actionLabel="Explore Pokédex"
+      (action)="goToPokedex()"
+    ></app-empty-state>
+    } @else if (filteredFavorites().length === 0) {
+    <!-- Empty State: Search yielded no matches in favorites -->
+    <app-empty-state
+      icon="search-outline"
+      title="No Matching Favorites"
+      message="None of your saved favorites match this search."
+      actionLabel="Clear Search"
+      (action)="clearSearch()"
+    ></app-empty-state>
+    } @else {
+    <!-- Favorites Grid Header -->
+    <div class="fav-count-banner">
+      <span> Saved Pokémon (<strong>{{ filteredFavorites().length }}</strong>) </span>
+    </div>
+
+    <!-- Favorites Cards Grid -->
+    <div class="pokemon-grid" role="region" aria-label="Favorite Pokemon list">
+      @for (pokemon of filteredFavorites(); track pokemon.id) {
+      <app-pokemon-card [pokemon]="pokemon" (favoriteToggled)="onFavoriteToggle($event)"></app-pokemon-card>
+      }
+    </div>
+    }
+  </div>
+</ion-content>

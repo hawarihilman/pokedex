@@ -1,0 +1,140 @@
+.header-favorites {
+  background: var(--ion-background-color, #ffffff);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.main-toolbar {
+  --background: transparent;
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fav-icon-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffe3e3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-icon {
+    font-size: 18px;
+    color: #e53e3e;
+  }
+}
+
+.brand-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--ion-text-color, #1a202c);
+  padding: 0;
+}
+
+.desktop-nav {
+  display: none;
+  align-items: center;
+  gap: 12px;
+
+  @media (min-width: 768px) {
+    display: flex;
+  }
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--ion-color-step-600, #4a5568);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--ion-color-step-100, #edf2f7);
+    color: var(--ion-text-color, #1a202c);
+  }
+
+  &.active {
+    background: #e2e8f0;
+    color: #2b6cb0;
+  }
+
+  &.fav-nav-link ion-icon {
+    color: #e53e3e;
+  }
+}
+
+.nav-badge {
+  background: #e53e3e;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.search-toolbar {
+  --background: transparent;
+  --padding-top: 0;
+  --padding-bottom: 8px;
+}
+
+.custom-searchbar {
+  --background: var(--ion-color-step-100, #f1f5f9);
+  --border-radius: 14px;
+  --box-shadow: none;
+  --placeholder-color: var(--ion-color-step-500, #94a3b8);
+  --icon-color: var(--ion-color-step-500, #64748b);
+  padding-inline-start: 16px;
+  padding-inline-end: 16px;
+  font-size: 0.95rem;
+}
+
+.favorites-content {
+  --background: var(--ion-background-color, #f8fafc);
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: calc(100vh - 120px);
+}
+
+.fav-count-banner {
+  padding: 16px 20px 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ion-color-step-600, #64748b);
+}
+
+.pokemon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  padding: 16px;
+
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 18px;
+    padding: 20px;
+  }
+
+  @media (min-width: 992px) {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 22px;
+    padding: 24px 16px;
+  }
+}
