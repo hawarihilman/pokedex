@@ -227,6 +227,10 @@ Potential hosting options include:
 
 Native iOS and Android applications can be built and distributed through their respective platform workflows.
 
+## 📄 Figma
+
+https://www.figma.com/design/4xh7dU7tWKDbX1ZBWAX6a8/Pokedex-Design?node-id=0-1&t=7IV4PGMg2tMxeWPu-1
+
 ## 📄 License
 
 This project was created for a technical assessment.
