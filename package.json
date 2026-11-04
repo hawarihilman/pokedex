@@ -1,8 +1,8 @@
 {
   "name": "pokedex",
   "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "author": "Muhammad Hawari Hilman",
+  "homepage": "https://github.com/hawarihilman/pokedex",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -57,5 +57,5 @@
     "vitest": "~5.0.5"
   },
   "prettier": "@ionic/prettier-config",
-  "description": "An Ionic project"
+  "description": "A cross-platform Pokédex application built with Angular, Ionic, and Capacitor"
 }

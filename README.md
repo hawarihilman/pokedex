@@ -1,193 +1,232 @@
-# ⚡ Pokédex — Senior Frontend Engineer Application
+# ⚡ Pokédex
 
-A production-grade, cross-platform **Pokédex** application engineered with **Angular 22**, **Ionic 9**, and **Capacitor 8**. Built for Pokémon Trainers to browse, filter, inspect, and favorite Pokémon seamlessly across **Desktop Web**, **Mobile Web**, and **Native iOS & Android**.
+A modern, cross-platform **Pokédex application** built with **Angular 22**, **Ionic 9**, and **Capacitor 8**.
 
----
+Designed for Pokémon Trainers to explore Pokémon data through a responsive, mobile-first interface. The application supports desktop browsers, mobile browsers, and native mobile development through Capacitor.
 
-## 📋 Evaluation Criteria & Feature Matrix
+## ✨ Features
 
-| Requirement                         | Implementation Details                                                                                                                                                                                                                                      |  Status  |
-| :---------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
-| **Infinite Scrolling**              | Built with `<ion-infinite-scroll>` with threshold batching, animated spinning Pokéball loader indicator, and optimistic background hydration. Supports continuous browsing through all 1,300+ Pokémon without limits, plus type-filtered pagination.        | Complete |
-| **Detailed Information**            | Deep dive view per Pokémon: physical dimensions (metric & imperial via custom pipes), base experience, abilities (with hidden flag), interactive audio cries player, base stats progress bars with normalized color scales, and alternative sprite gallery. | Complete |
-| **High Quality Artwork**            | High-resolution official artwork with lazy loading, skeleton placeholder, graceful fallback, and a one-click **Shiny Form** toggle.                                                                                                                         | Complete |
-| **Favourites Management**           | Dedicated Favorites tab, persistent storage via `StorageService` (`localStorage`), real-time reactive counter badge, tactile haptics via `@capacitor/haptics`, search filter, and automatic scroll-to-top on tab switch.                                    | Complete |
-| **Type Filtering**                  | Dynamic filter chip carousel supporting all 18 Pokémon types with official type hex gradients, count indicators, and clear/reset actions.                                                                                                                   | Complete |
-| **Desktop & Mobile Responsiveness** | Adaptive responsive grid (1-4 columns), desktop header navigation with favorite badge counters, and native mobile bottom tab bar.                                                                                                                           | Complete |
-| **Native iOS & Android Support**    | Configured with Capacitor 8 for native compilation, safe-area insets, and haptic feedback.                                                                                                                                                                  | Complete |
-| **Figma Prototype**                 | Comprehensive Figma Design System, Tokens, Wireframes, and Flow specification included in [FIGMA_PROTOTYPE_GUIDE.md](./FIGMA_PROTOTYPE_GUIDE.md).                                                                                                           | Complete |
-| **Code Quality & Testing**          | Modular Clean Architecture, Angular Signals, typed DTOs, HTTP caching interceptor, and 100% passing Vitest unit test suite.                                                                                                                                 | Complete |
+- Browse Pokémon with a responsive, mobile-first interface.
+- Search and filter Pokémon.
+- View detailed Pokémon information.
+- Save favorite Pokémon.
+- Support light and dark themes.
+- Responsive layouts for desktop and mobile.
+- Native mobile integration through Capacitor.
 
----
+> Note: The feature list should reflect the functionality implemented in the current version of the application.
 
-## 🏛️ Application Architecture & Design Patterns
+## 🛠️ Tech Stack
 
-### 1. Layered Architecture (Separation of Concerns)
+| Technology  | Purpose                                  |
+| ----------- | ---------------------------------------- |
+| Angular 22  | Application framework                    |
+| Ionic 9     | UI components and mobile-first interface |
+| Capacitor 8 | Native iOS and Android integration       |
+| TypeScript  | Application development                  |
+| RxJS        | Reactive programming                     |
+| Ionicons 8  | Icon library                             |
+| Vitest      | Unit testing                             |
+| Playwright  | End-to-end testing                       |
+
+## 🏛️ Application Architecture
+
+The application follows a feature-oriented structure with separation between application-wide logic, feature pages, and reusable UI components.
 
 ```text
-src/app/
-├── core/                         # Singleton services, domain models, utilities, interceptors
-│   ├── constants/                # Type metadata, stats configurations, generation limits
-│   ├── interceptors/             # In-memory HTTP cache interceptor (immutable PokeAPI caching)
-│   ├── models/                   # Pure TypeScript domain entities & API DTO contracts
-│   ├── services/                 # API client, Signal store, Storage abstraction, Haptics
-│   └── utils/                    # URL parsers, formatting helpers, pure math utilities
-├── features/                     # Page-level domain slices (lazy-loaded routes)
-│   ├── pokemon-list/             # Infinite scroll browser, search, type filter carousel
-│   ├── pokemon-detail/           # Hero artwork, shiny toggle, cry audio, segmented tabs
-│   ├── pokemon-favorites/        # Saved favorites grid, empty states, quick search
-│   └── tabs/                     # Responsive container: mobile bottom bar & desktop header
-└── shared/                       # Dumb presentational components & pure pipes
-    ├── components/               # PokemonCard, TypeBadge, StatBar, TypeFilter, SkeletonGrid
-    └── pipes/                    # PokemonIdPipe (#0025), MeasurementsPipes (m/ft, kg/lbs)
+src/
+└── app/
+    ├── core/                     # Application-wide services, models, and utilities
+    │   ├── constants/            # Shared constants and configuration
+    │   ├── interceptors/         # HTTP interceptors
+    │   ├── models/               # Domain models and API contracts
+    │   ├── services/             # API, state, and platform services
+    │   └── utils/                # Reusable utility functions
+    │
+    ├── features/                 # Feature-specific pages and logic
+    │   ├── pokemon-list/         # Pokémon browsing, search, and filtering
+    │   ├── pokemon-detail/       # Pokémon detail information
+    │   ├── pokemon-favorites/    # Favorite Pokémon
+    │   └── tabs/                 # Responsive application navigation
+    │
+    └── shared/                   # Reusable presentation components
+        ├── components/           # Pokémon cards, badges, and UI components
+        └── pipes/                # Reusable formatting pipes
 ```
 
-### 2. Modern Angular 22 Paradigm
+### Architecture Principles
 
-- **Standalone Components**: Clean modularity with zero legacy `NgModule` overhead.
-- **Angular Signals**: Fine-grained reactivity using `signal()`, `computed()`, and reactive stores (`PokemonStoreService`).
-- **Control Flow**: Modern template syntax (`@if`, `@for`, `@empty`) for high rendering performance.
-- **Component Input Binding**: Route parameters directly bound to component inputs via `withComponentInputBinding()`.
+- **Separation of Concerns:** Application-wide logic is separated from feature-specific functionality.
+- **Feature-Based Organization:** Related pages and components are grouped by domain.
+- **Reusable Components:** Shared UI components help maintain consistent presentation.
+- **Standalone Components:** Angular standalone APIs are used to keep the application modular.
+- **Responsive Design:** The interface is designed with mobile usage as the primary consideration.
 
-### 3. High Performance Caching
-
-Because PokeAPI data is immutable (e.g. Pokémon #25 will never change base stats), an **In-Memory HTTP Cache Interceptor** (`cacheInterceptor`) intercepts all PokeAPI requests. Navigating back and forth between cards and details renders instantly from memory with **0 redundant network calls**.
-
-### 4. Native & Tactile Feedback
-
-Integrated with `@capacitor/haptics` to trigger tactile vibration feedback when trainers favorite Pokémon on iOS and Android devices, with graceful web browser fallback.
-
----
-
-## 🚀 Getting Started & Local Environment
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- **Node.js**: `>= 20.0.0` (LTS recommended)
-- **npm**: `>= 10.0.0`
+- **Node.js:** A version compatible with Angular 22.
+- **npm:** Included with Node.js.
+- **Git:** Required to clone the repository.
 
-### 1. Installation
+### 1. Clone the Repository
 
 ```bash
 git clone <repository-url>
 cd pokedex
+```
+
+### 2. Install Dependencies
+
+```bash
 npm install
 ```
 
-### 2. Development Server (Desktop & Mobile Web)
+### 3. Start the Development Server
 
 ```bash
 npm start
 ```
 
-Open your browser and navigate to **`http://localhost:4200`**.
+The application runs using Angular's development server.
 
-### 3. Run Unit Tests (Vitest)
+Open the following URL in your browser:
 
-Unit tests cover utilities, services, stores, pipes, and components:
+```text
+http://localhost:4200
+```
+
+Alternatively, you can use the Ionic CLI:
 
 ```bash
-# Run unit tests once
-npm run test:unit
+npx ionic serve
+```
 
-# Run unit tests in watch mode
+## 🧪 Testing
+
+The project is configured with unit testing and end-to-end testing tools.
+
+### Unit Tests
+
+Run unit tests once:
+
+```bash
+npm run test:unit
+```
+
+Run unit tests in watch mode:
+
+```bash
 npm run test:unit:watch
 ```
 
-### 4. Code Quality & Formatting
+### End-to-End Tests
+
+Run Playwright tests:
 
 ```bash
-# Lint code and verify types
-npm run lint
+npm run test:e2e
+```
 
-# Auto-fix linting and format with Prettier
+### Run All Tests
+
+```bash
+npm test
+```
+
+The `npm test` command runs unit tests followed by end-to-end tests.
+
+## 🧹 Code Quality
+
+The project includes ESLint, TypeScript checking for the end-to-end project, and Prettier.
+
+### Check Code Quality
+
+```bash
+npm run lint
+```
+
+### Automatically Fix Linting and Formatting Issues
+
+```bash
 npm run lint:fix
 ```
 
-### 5. Production Build
+## 📦 Production Build
+
+Build the application for production:
 
 ```bash
 npm run build
 ```
 
-The compiled output is generated in the **`www/`** directory with chunk optimization and lazy-loaded routes.
+Angular generates the production build in the configured output directory.
 
----
+## 📱 Native Mobile Development
 
-## 📱 Mobile Native Build (iOS & Android via Capacitor)
+The application uses Capacitor to integrate the web application with native iOS and Android projects.
 
-This application is ready to be packaged and run natively on iOS and Android devices using Capacitor.
-
-### 1. Build the Web Distribution
+### Build the Web Application
 
 ```bash
 npm run build
 ```
 
-### 2. Add Native Platforms (One-Time Setup)
+### Synchronize Native Projects
+
+After making changes to the web application, rebuild and synchronize the native projects:
 
 ```bash
-# Add iOS platform (requires macOS & Xcode)
-npx cap add ios
-
-# Add Android platform (requires Android Studio)
-npx cap add android
-```
-
-### 3. Sync Web Assets to Native Projects
-
-Whenever code is updated:
-
-```bash
+npm run build
 npx cap sync
 ```
 
-### 4. Open in IDEs
+### Open Native Projects
 
 ```bash
-# Open in Xcode
+# Open the iOS project in Xcode
 npx cap open ios
+```
 
-# Open in Android Studio
+For Android, first install and add the Android platform:
+
+```bash
+npm install @capacitor/android
+npx cap add android
+```
+
+Then you can open it in Android Studio:
+
+```bash
 npx cap open android
 ```
 
----
+### Platform Requirements
 
-## ☁️ Cloud Deployment Options
+| Platform | Requirements                   |
+| -------- | ------------------------------ |
+| iOS      | macOS and Xcode                |
+| Android  | Android Studio and Android SDK |
 
-The project compiles to static web files in `www/` and can be deployed to any modern cloud hosting service:
+## 🌐 Data Source
 
-### Option A: Vercel
+Pokémon information is retrieved from [PokéAPI](https://pokeapi.co/).
 
-```bash
-npm install -g vercel
-vercel deploy --prod
-# Root Directory: ./
-# Output Directory: www
-```
+PokéAPI provides Pokémon data, including species information, types, stats, sprites, and artwork.
 
-### Option B: Netlify
+## ☁️ Deployment
 
-```bash
-npm install -g netlify-cli
-netlify deploy --prod --dir=www
-```
+The application can be deployed as a web application to a static hosting provider after running the production build.
 
-### Option C: GitHub Pages
+Potential hosting options include:
 
-Configure GitHub Actions to run:
+- [Vercel](https://vercel.com/)
+- [Netlify](https://www.netlify.com/)
+- [GitHub Pages](https://pages.github.com/)
 
-```bash
-npm ci
-npm run build
-# Deploy 'www' directory to gh-pages branch
-```
+Native iOS and Android applications can be built and distributed through their respective platform workflows.
 
----
+## 📄 License
 
-## 🧪 Testing Summary
-
-- **Unit Testing**: Vitest with `@angular/core/testing` and `provideHttpClientTesting`.
-- **E2E Testing**: Playwright (`playwright.config.ts`, `e2e/app.spec.ts`).
-- **Test Results**: **8 test suites passed, 38 unit tests passing (100% success rate)**.
+This project was created for a technical assessment.
