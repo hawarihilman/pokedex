@@ -5,6 +5,7 @@ import {
   formatPokemonId,
   formatPokemonName,
   getOfficialArtworkUrl,
+  matchesPokemonQuery,
   parsePokemonType,
 } from './pokemon.utils';
 
@@ -70,6 +71,44 @@ describe('Pokemon Utils', () => {
     it('should lowercase string and return as PokemonType', () => {
       expect(parsePokemonType('FIRE')).toBe('fire');
       expect(parsePokemonType('Grass')).toBe('grass');
+    });
+  });
+
+  describe('matchesPokemonQuery', () => {
+    const charmander = {
+      id: 4,
+      name: 'Charmander',
+      formattedId: '#0004',
+    };
+
+    it('should match 4-digit formatted ID like "0004"', () => {
+      expect(matchesPokemonQuery(charmander, '0004')).toBe(true);
+      expect(matchesPokemonQuery(charmander, '#0004')).toBe(true);
+    });
+
+    it('should match raw numeric ID like "4" or "#4"', () => {
+      expect(matchesPokemonQuery(charmander, '4')).toBe(true);
+      expect(matchesPokemonQuery(charmander, '#4')).toBe(true);
+    });
+
+    it('should match partial padded ID like "04"', () => {
+      expect(matchesPokemonQuery(charmander, '04')).toBe(true);
+    });
+
+    it('should match pokemon name case-insensitively', () => {
+      expect(matchesPokemonQuery(charmander, 'charmander')).toBe(true);
+      expect(matchesPokemonQuery(charmander, 'CHAR')).toBe(true);
+    });
+
+    it('should return false for non-matching queries', () => {
+      expect(matchesPokemonQuery(charmander, '0005')).toBe(false);
+      expect(matchesPokemonQuery(charmander, 'pikachu')).toBe(false);
+      expect(matchesPokemonQuery(charmander, '99')).toBe(false);
+    });
+
+    it('should return true for empty or whitespace query', () => {
+      expect(matchesPokemonQuery(charmander, '')).toBe(true);
+      expect(matchesPokemonQuery(charmander, '   ')).toBe(true);
     });
   });
 });

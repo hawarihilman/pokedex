@@ -110,6 +110,21 @@ describe('PokemonStoreService', () => {
     expect(result[0].name).toBe('Bulbasaur');
   });
 
+  it('should filter pokemon by 4-digit formatted ID like "0004" and "#0004"', async () => {
+    await store.loadInitial();
+
+    store.setSearchQuery('0004');
+    let result = store.displayPokemon();
+    expect(result.length).toBe(1);
+    expect(result[0].name).toBe('Charmander');
+    expect(result[0].formattedId).toBe('#0004');
+
+    store.setSearchQuery('#0004');
+    result = store.displayPokemon();
+    expect(result.length).toBe(1);
+    expect(result[0].name).toBe('Charmander');
+  });
+
   it('should toggle favorite status, persist to storage and trigger haptics', async () => {
     await store.loadInitial();
 

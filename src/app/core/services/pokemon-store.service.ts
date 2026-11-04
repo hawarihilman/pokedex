@@ -3,6 +3,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import type { PokemonDetail, PokemonListItem, PokemonType } from '../models/pokemon.model';
+import { matchesPokemonQuery } from '../utils/pokemon.utils';
 
 import { HapticsService } from './haptics.service';
 import { PokemonApiService } from './pokemon-api.service';
@@ -36,6 +37,9 @@ export class PokemonStoreService {
   readonly typeFilteredList = signal<PokemonListItem[]>([]);
   readonly typeFilterOffset = signal<number>(0);
 
+  // Remotely searched Pokemon (fallback when searching ID/name outside loaded pages)
+  readonly searchedPokemon = signal<PokemonListItem[]>([]);
+
   // Favorites state
   readonly favoriteIds = signal<number[]>(this.storage.get<number[]>(FAVORITES_STORAGE_KEY, []));
   readonly favoriteItems = signal<PokemonListItem[]>(this.storage.get<PokemonListItem[]>(FAVORITES_DETAILS_KEY, []));
@@ -50,12 +54,16 @@ export class PokemonStoreService {
    */
   readonly displayPokemon = computed(() => {
     const favSet = new Set(this.favoriteIds());
-    const query = this.searchQuery().trim().toLowerCase();
+    const query = this.searchQuery().trim();
     const isFiltered = this.isTypeFiltered();
 
     const baseList = isFiltered ? this.typeFilteredList().slice(0, this.typeFilterOffset()) : this.rawPokemonList();
 
-    const withFavStatus = baseList.map((item) => ({
+    // Include remotely searched Pokemon if not already in baseList
+    const extraSearched = this.searchedPokemon().filter((s) => !baseList.some((b) => b.id === s.id));
+    const combinedList = [...baseList, ...extraSearched];
+
+    const withFavStatus = combinedList.map((item) => ({
       ...item,
       isFavorite: favSet.has(item.id),
     }));
@@ -64,20 +72,14 @@ export class PokemonStoreService {
       return withFavStatus;
     }
 
-    const cleanNumericQuery = query.replace('#', '');
-    return withFavStatus.filter((p) => {
-      const nameMatch = p.name.toLowerCase().includes(query);
-      const idMatch = p.id.toString().includes(cleanNumericQuery);
-      return nameMatch || idMatch;
-    });
+    return withFavStatus.filter((p) => matchesPokemonQuery(p, query));
   });
 
   /**
    * Favorites list with query search applied.
    */
   readonly displayFavorites = computed(() => {
-    const query = this.searchQuery().trim().toLowerCase();
-    const cleanNumericQuery = query.replace('#', '');
+    const query = this.searchQuery().trim();
     const items = this.favoriteItems().map((item) => ({
       ...item,
       isFavorite: true,
@@ -87,11 +89,7 @@ export class PokemonStoreService {
       return items;
     }
 
-    return items.filter((p) => {
-      const nameMatch = p.name.toLowerCase().includes(query);
-      const idMatch = p.id.toString().includes(cleanNumericQuery);
-      return nameMatch || idMatch;
-    });
+    return items.filter((p) => matchesPokemonQuery(p, query));
   });
 
   /**
@@ -284,6 +282,37 @@ export class PokemonStoreService {
    */
   setSearchQuery(query: string): void {
     this.searchQuery.set(query);
+    const trimmed = query.trim().toLowerCase();
+
+    if (!trimmed) {
+      this.searchedPokemon.set([]);
+      return;
+    }
+
+    // Check if we already have matching items in the currently loaded list
+    const hasLocalMatch = this.rawPokemonList().some((p) => matchesPokemonQuery(p, trimmed));
+
+    if (hasLocalMatch) {
+      return;
+    }
+
+    // Fallback API lookup for specific ID or exact name
+    const cleanIdOrName = trimmed.replace('#', '').trim();
+    if (cleanIdOrName) {
+      this.fetchSearchedPokemon(cleanIdOrName);
+    }
+  }
+
+  private fetchSearchedPokemon(idOrName: string): void {
+    this.api.getPokemonDetail(idOrName).subscribe({
+      next: (detail) => {
+        const item = this.api.mapDetailToListItem(detail);
+        this.searchedPokemon.set([item]);
+      },
+      error: () => {
+        // Query not found on PokeAPI or still incomplete
+      },
+    });
   }
 
   /**
